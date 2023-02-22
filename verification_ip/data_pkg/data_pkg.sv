@@ -5,11 +5,11 @@ package data_pkg;
    } i2c_op_t;
 
    typedef enum bit [2:0]{
-    INIT,
+    CLEAR,
     START,
     ADDRESS,
-    DATA,
-    STOP
+    WRITEDATA,
+    READDATA
    } rcvState_t;
 endpackage
 

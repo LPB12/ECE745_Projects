@@ -27,6 +27,7 @@ bit monWE;
 bit[I2C_DW-1:0] i2cData[];
 bit[I2C_AW-1:0] i2cAddr;
 bit i2cOp;
+bit transferComplete;
 
 //Addresses
 parameter
@@ -68,6 +69,7 @@ end
 initial begin : test_flow
   reg [WB_DATA_WIDTH-1:0] tmp;
   bit[WB_DATA_WIDTH-1:0]data_bytes[32];
+  bit[I2C_DW-1:0]data_for_read_one[32];
 
   while(rst) @ (clk);
   #1000;
@@ -76,12 +78,22 @@ initial begin : test_flow
     data_bytes[i] = i;
   end
 
+  for(int i = 0; i < 32; i++) begin
+    data_for_read_one[i] = 100 + i;
+  end
+
+  wb_bus.master_write(CSR, 8'b11xx_xxxx);
+  wb_bus.master_write(DPR, 8'h05);
+  wb_bus.master_write(CMDR, 8'bxxxx_x110);//Set bus
+  wait(irq);
+
+
+  $display("======================================");
+  $display("          Test 1 - Write 0-31         ");
+  $display("======================================");
+
   fork
    begin
-      wb_bus.master_write(CSR, 8'b11xx_xxxx);
-      wb_bus.master_write(DPR, 8'h05);
-      wb_bus.master_write(CMDR, 8'bxxxx_x110);//Set bus
-      wait(irq);
       wb_bus.master_write(CMDR, 8'bxxxx_x100);//Start sending
       wait(irq);
       wb_bus.master_read(CMDR, tmp);
@@ -91,23 +103,34 @@ initial begin : test_flow
       wait(irq);
       wb_bus.master_read(CMDR, tmp);
       wait(irq);
-
       WB_Write(8'h44, data_bytes);
-
       wb_bus.master_write(CMDR, 8'bxxxx_x101); //Stop sending
       wait(irq);
       wb_bus.master_read(CMDR, tmp);
-
-      wb_bus.master_write(CSR, 8'b00xx_xxxx);//stop iicmb
    end
 
    begin
-      
      i2c_bus.wait_for_i2c_transfer(i2cOp, i2cData);
-      
    end
- join
+  join
   
+  $display("======================================");
+  $display("            Test 1 - ENDED            ");
+  $display("======================================");
+
+
+
+  $display("======================================");
+  $display("         Test 2 - Read 100-131        ");
+  $display("======================================");
+  fork
+
+    begin
+        i2c_bus.provide_read_data(data_for_read_one, transferComplete);
+    end
+  join
+
+
 end
 
 

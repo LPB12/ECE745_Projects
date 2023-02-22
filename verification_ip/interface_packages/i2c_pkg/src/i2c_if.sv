@@ -18,6 +18,10 @@ reg ackToggle = 1'b0;
 reg ackToggleTo = 1'b1;
 assign sda_o = ackToggle ? ackToggleTo : 1'bz;
 
+bit finished;
+bit finishedSet;
+
+
 task wait_for_i2c_transfer( output i2c_op_t op, output bit [I2C_DATA_WIDTH-1:0] write_data[]);
 
 	bit trash;
@@ -28,10 +32,13 @@ task wait_for_i2c_transfer( output i2c_op_t op, output bit [I2C_DATA_WIDTH-1:0] 
 	bit opcode;
 	bit ready;
 
-
 	
+
+	finishedSet = 1'b0;
+	finished = 1'b0;
 	ready = 1'b0;
-	tempState = INIT;
+	opcode = 1'b0;
+	tempState = START;
 	fsmState = START;
 
 	while(1)
@@ -52,6 +59,7 @@ task wait_for_i2c_transfer( output i2c_op_t op, output bit [I2C_DATA_WIDTH-1:0] 
 				for(int i = 6; i >= 0; i--)
 				begin
 					StartOrStop(fsmState, ready, tempState, rcvAddx[i]);
+					if(fsmState != tempState) break;
 					fsmState = tempState;
 					$display("State = %b", fsmState);
 				end
@@ -64,31 +72,28 @@ task wait_for_i2c_transfer( output i2c_op_t op, output bit [I2C_DATA_WIDTH-1:0] 
 				$display("ADDX RECEIVED = %h", rcvAddx);
 			end
 
-			DATA:
+			READDATA:
 			begin
 				for(int i = 7; i >= 0; i--)
 				begin
 					StartOrStop(fsmState, ready, tempState, rcvData[i]);
-					$display("State = %b", fsmState);
 					fsmState = tempState;
+					$display("State = %b", fsmState);
+					if(finishedSet == 1'b1) break;
 				end
-				$display("Ack %t", $time);
-				ackToggler(1'b0);
+				if(finishedSet == 1'b0) ackToggler(1'b0);
 				$display("DATA RECEIVED = %d", rcvData);
 			end
 
-			STOP:
+			WRITEDATA:
 			begin
-
-				StartOrStop(fsmState, ready, tempState, trash);
-				fsmState = tempState;
-				$display("State = %b", fsmState);
-				ready = 1'b0;
 			end
-
 		endcase
 		$display("end of while loop");
+		if(finishedSet == 1'b1) break;
 	end
+
+	$display("Outside the While loop");
 endtask
 
 task ackToggler(input bit setTo);
@@ -99,40 +104,57 @@ endtask
 
 task StartOrStop(input rcvState_t currState, input bit readyBit, output rcvState_t outputState, output bit dataBit);
 	bit startStop, startStop2;
+	bit happened;
 	wait(scl_i);
 	startStop = sda_i;
-	wait(~scl_i);
+	wait(!scl_i || (startStop != sda_i));
 	startStop2 = sda_i;
+	
+
+	happened = 1'b0;
 
 	if(startStop != startStop2)
 	begin
-		if(startStop2)
-		begin
-			outputState = STOP;
-			return;
+		outputState = START;
+
+		if(currState == START)
+		begin 
+			$display("START!");
+			wait(!scl_i);
 		end
-		if(~startStop2)
-		begin
-			outputState = START;
-			return;
+		if(currState != START)
+		begin 
+			$display("STOP!");
+			finishedSet = 1'b1;
 		end
+		
 	end
 
-	case(currState)
-		START: outputState = ADDRESS;
-		ADDRESS:begin
-			outputState = ADDRESS;
-			if(readyBit == 1'b1) outputState = DATA;
-		end 
+	
+	if(finishedSet == 1'b0)begin
+		case(currState)
+			START: outputState = ADDRESS;
+			ADDRESS:begin
+				outputState = ADDRESS;
+				if(readyBit == 1'b1) begin
+					if(startStop == 1'b0) outputState = READDATA;
+					if(startStop == 1'b1) outputState = WRITEDATA;
+				end
+			end 
+			
+			READDATA: begin
+				outputState = READDATA;
+			end
 		
-		DATA: outputState = DATA;
-	endcase
+		endcase
+	end
+	
 
 	dataBit = startStop;
-
 endtask
 
 task provide_read_data (    input bit [I2C_DATA_WIDTH-1:0] read_data [], output bit transfer_complete);
+	//foreach(read_data[i])
 endtask
 
 task monitor (   output bit [I2C_ADDR_WIDTH-1:0]  addr, output i2c_op_t op, output bit [I2C_DATA_WIDTH-1:0] data []);
