@@ -21,6 +21,8 @@ assign sda_o = ackToggle ? ackToggleTo : 1'bz;
 bit finished;
 bit finishedSet;
 
+bit[I2C_DATA_WIDTH-1:0]data_to_write[$];
+
 
 task wait_for_i2c_transfer( output i2c_op_t op, output bit [I2C_DATA_WIDTH-1:0] write_data[]);
 
@@ -31,11 +33,11 @@ task wait_for_i2c_transfer( output i2c_op_t op, output bit [I2C_DATA_WIDTH-1:0] 
 	bit[I2C_DATA_WIDTH-1:0] rcvData;
 	bit opcode;
 	bit ready;
+	bit[I2C_DATA_WIDTH-1:0] writeOut;
 
 	
 
 	finishedSet = 1'b0;
-	finished = 1'b0;
 	ready = 1'b0;
 	opcode = 1'b0;
 	tempState = START;
@@ -65,6 +67,7 @@ task wait_for_i2c_transfer( output i2c_op_t op, output bit [I2C_DATA_WIDTH-1:0] 
 				end
 				ready = 1'b1;
 				StartOrStop(fsmState, ready, tempState, opcode);
+				ready = 1'b0;
 				fsmState = tempState;
 				$display("State = %b", fsmState);
 				$display("Ack %t", $time);
@@ -72,21 +75,31 @@ task wait_for_i2c_transfer( output i2c_op_t op, output bit [I2C_DATA_WIDTH-1:0] 
 				$display("ADDX RECEIVED = %h", rcvAddx);
 			end
 
-			READDATA:
+			WRITEDATA:
 			begin
 				for(int i = 7; i >= 0; i--)
 				begin
 					StartOrStop(fsmState, ready, tempState, rcvData[i]);
 					fsmState = tempState;
-					$display("State = %b", fsmState);
 					if(finishedSet == 1'b1) break;
 				end
-				if(finishedSet == 1'b0) ackToggler(1'b0);
+				if(finishedSet == 1'b1) break;
+				ackToggler(1'b0);
 				$display("DATA RECEIVED = %d", rcvData);
 			end
 
-			WRITEDATA:
+			READDATA:
 			begin
+				writeOut = data_to_write.pop_front();
+				$display("Write Out = %b", writeOut);
+				for(int i = I2C_DATA_WIDTH-1; i >= 0; i--)
+				begin
+					ackToggler(writeOut[i]);
+				end
+				
+				StartOrStop(fsmState, ready, tempState, trash);
+				fsmState = tempState;
+				if(finishedSet == 1'b1) break;
 			end
 		endcase
 		$display("end of while loop");
@@ -104,14 +117,11 @@ endtask
 
 task StartOrStop(input rcvState_t currState, input bit readyBit, output rcvState_t outputState, output bit dataBit);
 	bit startStop, startStop2;
-	bit happened;
 	wait(scl_i);
 	startStop = sda_i;
 	wait(!scl_i || (startStop != sda_i));
 	startStop2 = sda_i;
-	
 
-	happened = 1'b0;
 
 	if(startStop != startStop2)
 	begin
@@ -137,15 +147,18 @@ task StartOrStop(input rcvState_t currState, input bit readyBit, output rcvState
 			ADDRESS:begin
 				outputState = ADDRESS;
 				if(readyBit == 1'b1) begin
-					if(startStop == 1'b0) outputState = READDATA;
-					if(startStop == 1'b1) outputState = WRITEDATA;
+					if(startStop == 1'b0) outputState = WRITEDATA;
+					if(startStop == 1'b1) outputState = READDATA;
 				end
 			end 
 			
+			WRITEDATA: outputState = WRITEDATA;
 			READDATA: begin
 				outputState = READDATA;
+				if(startStop == 1'b1) begin 
+					outputState = START;
+				end 
 			end
-		
 		endcase
 	end
 	
@@ -153,11 +166,17 @@ task StartOrStop(input rcvState_t currState, input bit readyBit, output rcvState
 	dataBit = startStop;
 endtask
 
-task provide_read_data (    input bit [I2C_DATA_WIDTH-1:0] read_data [], output bit transfer_complete);
-	//foreach(read_data[i])
+task provide_read_data (input bit [I2C_DATA_WIDTH-1:0] read_data [], output bit transfer_complete);
+	transfer_complete = 1'b0;
+
+	foreach(read_data[i]) begin
+		data_to_write.push_back(read_data[i]);
+	end
+
+	transfer_complete = 1'b1;
 endtask
 
-task monitor (   output bit [I2C_ADDR_WIDTH-1:0]  addr, output i2c_op_t op, output bit [I2C_DATA_WIDTH-1:0] data []);
+task monitor (output bit [I2C_ADDR_WIDTH-1:0]  addr, output i2c_op_t op, output bit [I2C_DATA_WIDTH-1:0] data []);
 
 endtask 
 												
