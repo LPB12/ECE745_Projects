@@ -1,5 +1,7 @@
 `timescale 1ns / 10ps
 
+import data_pkg::*;
+
 module top();
 parameter int WB_ADDR_WIDTH = 2;
 parameter int WB_DATA_WIDTH = 8;
@@ -24,9 +26,15 @@ tri  [NUM_I2C_BUSSES-1:0] sda;
 reg [WB_ADDR_WIDTH-1:0] monAddr;
 reg [WB_DATA_WIDTH-1:0] monData;
 bit monWE;
+
+bit[I2C_DW-1:0] monI2cData[];
+bit[I2C_AW-1:0] monI2cAddr;
+i2c_op_t monI2cOp;
+
+
 bit[I2C_DW-1:0] i2cData[];
 bit[I2C_AW-1:0] i2cAddr;
-bit i2cOp;
+i2c_op_t i2cOp;
 bit transferComplete;
 bit[WB_DATA_WIDTH-1:0]read_back_data[32];
 
@@ -59,6 +67,33 @@ end
 initial begin : wb_monitoring
   wb_bus.master_monitor(monAddr, monData, monWE);  
   $display("%x\n%x\n%x\n",monAddr,monData,monWE);
+end
+
+
+// Monitor I2C 
+initial begin : I2C_monitoring
+  forever begin
+    i2c_bus.monitor(monI2cAddr, monI2cOp, monI2cData);
+    if(monI2cOp == I2C_WRITE) begin
+      $display("I2C_BUS WRITE Transfer:");
+      $display("Address : %h",monI2cAddr);
+      $write("Data : ");
+      for(int i = 0; i < monI2cData.size(); i++) begin
+        $write("%d", $unsigned(monI2cData[i]));
+      end
+      $write("\n");
+    end
+
+    if(monI2cOp == I2C_READ)begin
+      $display("I2C_BUS READ Transfer:");
+      $display("Address : %h",monI2cAddr);
+      $write("Data : ");
+      for(int i = 0; i < monI2cData.size(); i++) begin
+        $write("%d", $unsigned(monI2cData[i]));
+      end
+      $write("\n");
+    end
+  end
 end
 
 
@@ -114,12 +149,12 @@ initial begin : test_flow
      i2c_bus.wait_for_i2c_transfer(i2cOp, i2cData);
    end
   join
+
+  #1000;
   
   $display("======================================");
   $display("            Test 1 - ENDED            ");
   $display("======================================");
-
-
 
   $display("======================================");
   $display("         Test 2 - Read 100-131        ");
@@ -150,10 +185,8 @@ initial begin : test_flow
     end
   join
 
-
-  foreach(read_back_data[i])begin
-    $display("Data Read = %b", read_back_data[i]);
-  end
+  #1000;
+  
   $display("======================================");
   $display("            Test 2 - Ended            ");
   $display("======================================");
