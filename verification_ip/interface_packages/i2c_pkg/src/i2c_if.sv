@@ -26,6 +26,8 @@ bit[I2C_ADDR_WIDTH-1:0] rcvAddx;
 bit[I2C_DATA_WIDTH-1:0] rcvData;
 bit opcode;
 
+bit[I2C_DATA_WIDTH-1:0] data_for_readout[$];
+
 bit I2C_mon = 1'b0;
 
 bit monFree = 1'b0;
@@ -39,7 +41,12 @@ task wait_for_i2c_transfer( output i2c_op_t op, output bit [I2C_DATA_WIDTH-1:0] 
 	rcvState_t tempState;
 	rcvState_t fsmState;
 	bit ready;
+	bit startInWrite;
 	bit[I2C_DATA_WIDTH-1:0] writeOut;
+	int forLoopCount;
+
+	startInWrite = 1'b0;
+	forLoopCount = 0;
 
 	firstRound = 1'b1;
 
@@ -64,21 +71,18 @@ task wait_for_i2c_transfer( output i2c_op_t op, output bit [I2C_DATA_WIDTH-1:0] 
 
 			ADDRESS:
 			begin
+				//$display("ADDRESS!");
 				for(int i = 6; i >= 0; i--)
 				begin
 					StartOrStop(fsmState, ready, tempState, rcvAddx[i]);
-					if(fsmState != tempState) break;
 					fsmState = tempState;
-					//$display("State = %b", fsmState);
 				end
 				ready = 1'b1;
 				StartOrStop(fsmState, ready, tempState, opcode);
 				ready = 1'b0;
 				fsmState = tempState;
-				//$display("State = %b", fsmState);
-				//$display("Ack %t", $time);
 				ackToggler(1'b0);
-				//$display("ADDX RECEIVED = %h", rcvAddx);
+				
 			end
 
 			WRITEDATA:
@@ -86,12 +90,25 @@ task wait_for_i2c_transfer( output i2c_op_t op, output bit [I2C_DATA_WIDTH-1:0] 
 				for(int i = 7; i >= 0; i--)
 				begin
 					StartOrStop(fsmState, ready, tempState, rcvData[i]);
+					if(fsmState != tempState) begin
+						fsmState = tempState;
+						startInWrite = 1'b1;
+						break;
+					end
 					fsmState = tempState;
 					if(finishedSet == 1'b1) break;
+
 				end
-				if(finishedSet == 1'b1) break;
-				ackToggler(1'b0);
-				//$display("DATA RECEIVED = %d", rcvData);
+				
+				if(startInWrite) begin
+					startInWrite = 1'b0;
+				end
+				else begin
+					if(finishedSet == 1'b1) break;
+					data_for_readout.push_back(rcvData);
+					ackToggler(1'b0);
+					//$display("DATA RECEIVED = %d", rcvData);
+				end
 			end
 
 			READDATA:
@@ -102,7 +119,7 @@ task wait_for_i2c_transfer( output i2c_op_t op, output bit [I2C_DATA_WIDTH-1:0] 
 				begin
 					ackToggler(writeOut[i]);
 				end
-				
+				data_for_readout.push_back(writeOut);	
 				StartOrStop(fsmState, ready, tempState, trash);
 				fsmState = tempState;
 				if(finishedSet == 1'b1) break;
@@ -123,12 +140,15 @@ endtask
 
 task StartOrStop(input rcvState_t currState, input bit readyBit, output rcvState_t outputState, output bit dataBit);
 	bit startStop, startStop2;
+	bit startHappened;
+
+
 	wait(scl_i);
 	startStop = sda_i;
 	wait(!scl_i || (startStop != sda_i));
 	startStop2 = sda_i;
 
-
+	startHappened = 1'b0;
 
 	if(startStop != startStop2)
 	begin
@@ -138,13 +158,15 @@ task StartOrStop(input rcvState_t currState, input bit readyBit, output rcvState
 		begin 
 			if(!firstRound) callMonitor();
 			else firstRound = 1'b0;
-			$display("START!");
+			//$display("START!");
+			outputState = ADDRESS;
 			wait(!scl_i);
+			return;
 		end
 		if(startStop2 == 1'b1)
 		begin 
 			callMonitor();
-			$display("STOP!");
+			//$display("STOP!");
 			finishedSet = 1'b1;
 		end
 		
@@ -155,14 +177,20 @@ task StartOrStop(input rcvState_t currState, input bit readyBit, output rcvState
 		case(currState)
 			START: outputState = ADDRESS;
 			ADDRESS:begin
+				//$display("ADDRESS!");
 				outputState = ADDRESS;
 				if(readyBit == 1'b1) begin
-					if(startStop == 1'b0) outputState = WRITEDATA;
-					if(startStop == 1'b1) outputState = READDATA;
+					//$display("State Change");
+					if(startStop2 == 1'b0) outputState = WRITEDATA;
+					if(startStop2 == 1'b1) outputState = READDATA;
 				end
+				//$display("OUTSTATE : %b", outputState);
 			end 
 			
-			WRITEDATA: outputState = WRITEDATA;
+			WRITEDATA: begin
+				outputState = WRITEDATA;
+			end
+			
 			READDATA: begin
 				outputState = READDATA;
 				if(startStop == 1'b1) begin 
@@ -203,6 +231,12 @@ task monitor (output bit [I2C_ADDR_WIDTH-1:0]  addr, output i2c_op_t op, output 
 	if(opcode == 1'b0) op = I2C_WRITE;
 
 	addr = rcvAddx;
+
+	dataSize = data_for_readout.size();
+
+	data = new[dataSize];
+
+	for(int i = 0; i < dataSize; i++) data[i] = data_for_readout.pop_front();
 	//DO data with queue stuff
 
 	monFree = 1'b0;

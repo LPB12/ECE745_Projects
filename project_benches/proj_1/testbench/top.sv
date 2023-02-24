@@ -89,7 +89,7 @@ initial begin : I2C_monitoring
       $display("Address : %h",monI2cAddr);
       $write("Data : ");
       for(int i = 0; i < monI2cData.size(); i++) begin
-        $write("%d", $unsigned(monI2cData[i]));
+        $write("%d ", $unsigned(monI2cData[i]));
       end
       $write("\n");
     end
@@ -106,6 +106,8 @@ initial begin : test_flow
   reg [WB_DATA_WIDTH-1:0] tmp;
   bit[WB_DATA_WIDTH-1:0]data_bytes[32];
   bit[I2C_DW-1:0]data_for_read_one[32];
+  bit[WB_DATA_WIDTH-1:0]data_bytes_two[64];
+  bit[I2C_DW-1:0]data_for_read_two[64];
 
   while(rst) @ (clk);
   #1000;
@@ -130,15 +132,7 @@ initial begin : test_flow
 
   fork
    begin
-      wb_bus.master_write(CMDR, 8'bxxxx_x100);//Start sending
-      wait(irq);
-      wb_bus.master_read(CMDR, tmp);
-      wait(irq);
-      wb_bus.master_write(DPR, ((7'h22 << 1) | 0));
-      wb_bus.master_write(CMDR, 8'bxxxx_x001);//Write
-      wait(irq);
-      wb_bus.master_read(CMDR, tmp);
-      wait(irq);
+      I2C_Start_Address(7'h22, 1'b0);
       WB_Write(data_bytes);
       wb_bus.master_write(CMDR, 8'bxxxx_x101); //Stop sending
       wait(irq);
@@ -161,16 +155,8 @@ initial begin : test_flow
   $display("======================================");
   fork
     begin
-      wb_bus.master_write(CMDR, 8'bxxxx_x100);//Start sending
-      wait(irq);
-      wb_bus.master_read(CMDR, tmp);
-      wait(irq);
-      wb_bus.master_write(DPR, ((7'h22 << 1) | 1));
-      wb_bus.master_write(CMDR, 8'bxxxx_x001);//Write
-      wait(irq);
-      wb_bus.master_read(CMDR, tmp);
-      wait(irq);
-      WB_Read(read_back_data);
+      I2C_Start_Address(7'h22, 1'b1);
+      WB_Read();
       wb_bus.master_write(CMDR, 8'bxxxx_x101); //Stop sending
       wait(irq);
       wb_bus.master_read(CMDR, tmp);
@@ -191,6 +177,45 @@ initial begin : test_flow
   $display("            Test 2 - Ended            ");
   $display("======================================");
 
+  $display("======================================");
+  $display("         Test 3 - Read & Write        ");
+  $display("======================================");
+  for(int i = 0; i < 64; i++) begin
+    data_bytes_two[i] = i+8'd64;
+  end
+
+  for(int i = 0; i < 64; i++) begin
+    data_for_read_two[i] = 8'd63 - i;
+  end
+
+  fork
+    begin
+      
+      for(int i = 0; i < 64; i++)begin
+        WB_WriteRead(data_bytes_two[i]);
+      end
+      wb_bus.master_write(CMDR, 8'bxxxx_x101); //Stop sending
+      wait(irq);
+      wb_bus.master_read(CMDR, tmp);
+    end
+
+    begin
+        i2c_bus.provide_read_data(data_for_read_two, transferComplete);
+    end
+
+    begin
+        i2c_bus.wait_for_i2c_transfer(i2cOp, i2cData);
+    end
+  join
+
+  #1000;
+  
+  $display("======================================");
+  $display("            Test 3 - Ended            ");
+  $display("======================================");
+  
+  $finish;
+
 
 end
 
@@ -202,11 +227,11 @@ task I2C_Start_Address(input bit[I2C_AW-1:0]address, input bit op);
     wait(irq);
     wb_bus.master_read(CMDR, start_tmp);
     wait(irq);
-
-    wb_bus.master_write(DPR, address);
+    wb_bus.master_write(DPR, ((address << 1) | op));
     wb_bus.master_write(CMDR, 8'bxxxx_x001);//Write
     wait(irq);
     wb_bus.master_read(CMDR, start_tmp);
+    wait(irq);
 endtask
 
 task WB_Write(input bit[I2C_DW-1:0]data[]);
@@ -221,7 +246,7 @@ task WB_Write(input bit[I2C_DW-1:0]data[]);
 endtask //WB_Write
 
 
-task WB_Read(input bit[I2C_DW-1:0]data[]);
+task WB_Read();
   bit [WB_DATA_WIDTH-1:0] read_tmp;
   for(int i = 0; i < 31; i++) begin
     wb_bus.master_write(CMDR, 8'bxxxx_x010);//Read Ack
@@ -242,6 +267,30 @@ task WB_Read(input bit[I2C_DW-1:0]data[]);
 
   
 endtask //WB_Write
+
+
+
+task WB_WriteRead(input bit[I2C_DW-1:0]data);
+  bit [WB_DATA_WIDTH-1:0] writeRead_tmp;
+
+  I2C_Start_Address(7'h22, 1'b0);
+
+  wb_bus.master_write(DPR, data);//Set data
+  wb_bus.master_write(CMDR, 8'bxxxx_x001);//Write data
+  wait(irq);
+  wb_bus.master_read(CMDR, writeRead_tmp);
+  wait(irq);
+
+  I2C_Start_Address(7'h22, 1'b1);
+
+  wb_bus.master_write(CMDR, 8'bxxxx_x011);//Read Nack
+  wait(irq);
+  wb_bus.master_read(DPR, writeRead_tmp);
+  wb_bus.master_read(CMDR, writeRead_tmp);
+  wait(irq);
+  
+endtask
+
 
 // ****************************************************************************
 // Instantiate the Wishbone master Bus Functional Model
