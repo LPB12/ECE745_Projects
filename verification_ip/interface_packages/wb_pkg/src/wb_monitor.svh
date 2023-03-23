@@ -3,6 +3,7 @@ class wb_monitor extends ncsu_component#(.T(wb_transaction));
   wb_configuration  configuration;
   virtual wb_if bus;
 
+  bit inverted_op;
   T monitored_trans;
   ncsu_component #(T) agent;
 
@@ -25,7 +26,8 @@ class wb_monitor extends ncsu_component#(.T(wb_transaction));
         if ( enable_transaction_viewing) begin
            monitored_trans.start_time = $time;
         end
-        bus.master_monitor(monitored_trans.addr, monitored_trans.data, ~(monitored_trans.op));//Might need intermediary value
+        bus.master_monitor(monitored_trans.addr, monitored_trans.data, inverted_op);//Might need intermediary value
+        monitored_trans.op = ~(inverted_op);
         // $display("%s wb_monitor::run() data 0x%x payload 0x%p trailer 0x%x delay 0x%x",
 //                  get_full_name(),
 //                  monitored_trans.header, 

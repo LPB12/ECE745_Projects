@@ -39,7 +39,6 @@ i2c_op_t monI2cOp;
 bit[I2C_DW-1:0] i2cData[];
 bit[I2C_AW-1:0] i2cAddr;
 i2c_op_t i2cOp;
-bit transferComplete;
 bit[WB_DATA_WIDTH-1:0]read_back_data[32];
 
 //Addresses
@@ -79,6 +78,7 @@ wb_bus (
   // System sigals
   .clk_i(clk),
   .rst_i(rst),
+  .irq_i(irq),
   // Master signals
   .cyc_o(cyc),
   .stb_o(stb),
@@ -141,11 +141,12 @@ i2c_bus(
 i2cmb_test test;
 
 initial begin: test_flow
-  test = new("test", null);
+  
   ncsu_config_db#(virtual wb_if#(WB_ADDR_WIDTH, WB_DATA_WIDTH))::set("test.env.wb_agent", wb_bus);
-  //Another for the I2C bus
+  ncsu_config_db#(virtual i2c_if#(I2C_DW, I2C_AW))::set("test.env.i2c_agent", i2c_bus);
+  
 
-
+  test = new("test", null);
 
 end
 

@@ -7,12 +7,13 @@ class i2cmb_test extends ncsu_component;
   function new(string name = "", ncsu_component_base parent = null); 
     super.new(name,parent);
     cfg = new("cfg");
-    cfg.sample_coverage();
+    //cfg.sample_coverage();
     env = new("env",this);
     env.set_configuration(cfg);
     env.build();
     gen = new("gen",this);
-    gen.set_agent(env.get_wb_agent());
+    gen.wb_set_agent(env.get_wb_agent());
+    gen.i2c_set_agent(env.get_i2c_agent());
   endfunction
 
   virtual task run();
