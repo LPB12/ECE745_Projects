@@ -13,11 +13,11 @@ class i2c_transaction extends ncsu_transaction;
      return {super.convert2string(),$sformatf("data:0x%x address:0x%x op:%b ", data, addr, op)};
   endfunction
 
-  // function bit compare(i2c_transaction rhs);
-  //   return ((this.header  == rhs.header ) && 
-  //           (this.payload == rhs.payload) &&
-  //           (this.trailer == rhs.trailer) );
-  // endfunction
+  function bit compare(i2c_transaction rhs);
+    return ((this.addr == rhs.addr ) && 
+            (this.data == rhs.data) &&
+            (this.op == rhs.op) );
+  endfunction
 
   virtual function void add_to_wave(int transaction_viewing_stream_h);
      super.add_to_wave(transaction_viewing_stream_h);

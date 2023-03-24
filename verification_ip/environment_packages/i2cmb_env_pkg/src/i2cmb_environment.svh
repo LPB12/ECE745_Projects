@@ -3,7 +3,7 @@ class i2cmb_environment extends ncsu_component#(.T(wb_transaction));
     i2c_agent         i2c_agent_env;
     wb_agent          wb_agent_env;
     i2cmb_predictor         pred;
-    //i2cmb_scoreboard        scbd;
+    i2cmb_scoreboard        scbd;
     //i2cmb_coverage          coverage;
 
     function new(string name = "", ncsu_component_base  parent = null); 
@@ -24,20 +24,16 @@ class i2cmb_environment extends ncsu_component#(.T(wb_transaction));
         pred  = new("pred", this);
         pred.set_configuration(configuration);
         pred.build();
-        // scbd  = new("scbd", this);
-        // scbd.build();
+        scbd  = new("scbd", this);
+        scbd.build();
         // coverage = new("coverage", this);
         // coverage.set_configuration(configuration);
         // coverage.build();
-        // i2c_agent.connect_subscriber(coverage);
-        // i2c_agent.connect_subscriber(pred);
-        //pred.set_scoreboard(scbd);
-        //wb_agent.connect_subscriber(scbd);
+        //i2c_agent.connect_subscriber(coverage);
+        wb_agent_env.connect_subscriber(pred);
+        pred.set_scoreboard(scbd);
+        i2c_agent_env.connect_subscriber(scbd);
     endfunction
-
-    // function ncsu_component#(T) get_i2c_agent();
-    //     return i2c_agent;
-    // endfunction
 
     function wb_agent get_wb_agent();
         return wb_agent_env;

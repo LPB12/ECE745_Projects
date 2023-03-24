@@ -2,6 +2,7 @@ class i2cmb_test extends ncsu_component;
   i2cmb_env_configuration  cfg;
   i2cmb_environment        env;
   i2cmb_generator          gen;
+  bit [7:0] test_data [];
 
 
   function new(string name = "", ncsu_component_base parent = null); 
@@ -17,8 +18,9 @@ class i2cmb_test extends ncsu_component;
   endfunction
 
   virtual task run();
-     env.run();
-     gen.run();
+    gen.create_trans_writes(test_data, 8'h22);
+    env.run();
+    gen.run();
   endtask
 
 endclass

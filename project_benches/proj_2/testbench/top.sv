@@ -141,12 +141,24 @@ i2c_bus(
 i2cmb_test test;
 
 initial begin: test_flow
-  
+ 
+
   ncsu_config_db#(virtual wb_if#(WB_ADDR_WIDTH, WB_DATA_WIDTH))::set("test.env.wb_agent", wb_bus);
   ncsu_config_db#(virtual i2c_if#(I2C_DW, I2C_AW))::set("test.env.i2c_agent", i2c_bus);
   
-
   test = new("test", null);
+
+  wait(rst == 1'b0);
+
+  test.run();
+
+  #2000
+
+  $finish;
+
+
+  
+  
 
 end
 
