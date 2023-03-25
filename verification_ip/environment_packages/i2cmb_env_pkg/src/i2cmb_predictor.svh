@@ -3,6 +3,8 @@ class i2cmb_predictor extends ncsu_component#(.T(wb_transaction));
   i2c_transaction i2c_real_trans, i2c_predicted_trans;
   i2cmb_env_configuration configuration;
 
+  
+
   function new(string name = "", ncsu_component_base  parent = null); 
     super.new(name,parent);
   endfunction
@@ -16,8 +18,10 @@ class i2cmb_predictor extends ncsu_component#(.T(wb_transaction));
   endfunction
 
   virtual function void nb_put(T trans);
-    //$display({get_full_name()," ",trans.convert2string()});
-    //scoreboard.nb_transport(trans, i2c_real_trans);
+    i2c_real_trans = new("real");
+    i2c_predicted_trans = new("predicted");
+    $display({get_full_name()," ",trans.convert2string()});
+    scoreboard.nb_transport(i2c_real_trans, i2c_predicted_trans);
   endfunction
 
 

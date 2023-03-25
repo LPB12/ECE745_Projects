@@ -20,7 +20,7 @@ class i2c_driver extends ncsu_component#(.T(i2c_transaction));
     if(trans.op == 0) bus.wait_for_i2c_transfer(trans.op, trans.data);
     else begin
       fork
-        bus.provide_read_data(data, transferComplete);
+        bus.provide_read_data(trans.data, transferComplete);
         bus.wait_for_i2c_transfer(trans.op, trans.data);
       join
     end

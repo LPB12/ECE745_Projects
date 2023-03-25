@@ -15,10 +15,12 @@ class wb_driver extends ncsu_component#(.T(wb_transaction));
 
   virtual task bl_put(T trans);
     $display({get_full_name()," ",trans.convert2string()});
+
     bus.master_write(trans.addr, trans.data);
 
-    if(trans.addr == 2'h2) begin 
+    if(trans.addr == 2'h2 && (trans.data != 8'bxxxx_x010 || trans.data != 8'bxxxx_x011)) begin 
       bus.wait_for_interrupt();
+      if(trans.data == 8'bxxxx_x010 || trans.data == 8'bxxxx_x011) bus.master_read(2'h1, trashData);
       bus.master_read(2'h2, trashData);
     end
     

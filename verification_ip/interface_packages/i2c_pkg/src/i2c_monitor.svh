@@ -18,31 +18,28 @@ class i2c_monitor extends ncsu_component#(.T(i2c_transaction));
     this.agent = agent;
   endfunction
   
-  // virtual task run ();
-  //   bus.wait_for_reset();
-  //     forever begin
-  //       monitored_trans = new("monitored_trans");
-  //       if ( enable_transaction_viewing) begin
-  //          monitored_trans.start_time = $time;
-  //       end
-  //       bus.monitor(monitored_trans.header,
-  //                   monitored_trans.payload,
-  //                   monitored_trans.trailer,
-  //                   monitored_trans.delay
-  //                   );
-  //       $display("%s abc_monitor::run() header 0x%x payload 0x%p trailer 0x%x delay 0x%x",
-  //                get_full_name(),
-  //                monitored_trans.header, 
-  //                monitored_trans.payload, 
-  //                monitored_trans.trailer, 
-  //                monitored_trans.delay
-  //                );
-  //       agent.nb_put(monitored_trans);
-  //       if ( enable_transaction_viewing) begin
-  //          monitored_trans.end_time = $time;
-  //          monitored_trans.add_to_wave(transaction_viewing_stream);
-  //       end
-  //   end
-  // endtask
+  virtual task run ();
+      forever begin
+        monitored_trans = new("monitored_trans");
+        if ( enable_transaction_viewing) begin
+           monitored_trans.start_time = $time;
+        end
+        bus.monitor(monitored_trans.addr,
+                    monitored_trans.op,
+                    monitored_trans.data
+                    );
+        $display("%s i2c_monitor::run() data:0x%x address:0x%x op:%s ", 
+                  get_full_name(),
+                  monitored_trans.data,
+                  monitored_trans.addr,
+                  monitored_trans.op ? "READ" : "WRITE"
+                );
+        agent.nb_put(monitored_trans);
+        if ( enable_transaction_viewing) begin
+           monitored_trans.end_time = $time;
+           monitored_trans.add_to_wave(transaction_viewing_stream);
+        end
+    end
+  endtask
 
 endclass
