@@ -20,7 +20,7 @@ class i2cmb_predictor extends ncsu_component#(.T(wb_transaction));
   virtual function void nb_put(T trans);
     i2c_real_trans = new("real");
     i2c_predicted_trans = new("predicted");
-    $display({get_full_name()," ",trans.convert2string()});
+    //$display({get_full_name()," ",trans.convert2string()});
     scoreboard.nb_transport(i2c_real_trans, i2c_predicted_trans);
   endfunction
 

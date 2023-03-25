@@ -16,7 +16,7 @@ class i2c_driver extends ncsu_component#(.T(i2c_transaction));
   endfunction
 
   virtual task bl_put(T trans);
-    $display({get_full_name()," ",trans.convert2string()});
+    //$display({get_full_name()," ",trans.convert2string()});
     if(trans.op == 0) bus.wait_for_i2c_transfer(trans.op, trans.data);
     else begin
       fork

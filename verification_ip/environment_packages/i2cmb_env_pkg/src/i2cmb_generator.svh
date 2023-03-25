@@ -119,7 +119,7 @@ class i2cmb_generator extends ncsu_component #(.T(ncsu_transaction));
         $display("======================================");
 
         $display("======================================");
-        $display("         Test 3 - Read & Write        ");
+        $display("   Test 3 - Alternate Reads & Writes  ");
         $display("======================================");
         //INTERLEAVED
         for(int i = 0; i < 64; i++)begin
