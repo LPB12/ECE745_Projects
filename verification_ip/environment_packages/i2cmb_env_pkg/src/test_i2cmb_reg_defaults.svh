@@ -1,0 +1,2 @@
+class test_i2cmb_reg_defaults extends ncsu_component; 
+endclass

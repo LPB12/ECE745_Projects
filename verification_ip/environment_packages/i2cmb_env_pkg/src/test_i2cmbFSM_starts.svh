@@ -1,0 +1,2 @@
+class test_i2cmbFSM_starts extends ncsu_component; 
+endclass

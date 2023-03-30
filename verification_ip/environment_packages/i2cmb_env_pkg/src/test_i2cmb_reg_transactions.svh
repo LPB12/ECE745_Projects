@@ -1,0 +1,2 @@
+class test_i2cmb_reg_transactions extends ncsu_component; 
+endclass

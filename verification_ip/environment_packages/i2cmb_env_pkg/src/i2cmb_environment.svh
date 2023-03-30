@@ -4,7 +4,7 @@ class i2cmb_environment extends ncsu_component#(.T(wb_transaction));
     wb_agent          wb_agent_env;
     i2cmb_predictor         pred;
     i2cmb_scoreboard        scbd;
-    //i2cmb_coverage          coverage;
+    i2cmb_coverage          coverage;
 
     function new(string name = "", ncsu_component_base  parent = null); 
         super.new(name,parent);
@@ -26,10 +26,12 @@ class i2cmb_environment extends ncsu_component#(.T(wb_transaction));
         pred.build();
         scbd  = new("scbd", this);
         scbd.build();
-        // coverage = new("coverage", this);
-        // coverage.set_configuration(configuration);
-        // coverage.build();
-        //i2c_agent.connect_subscriber(coverage);
+
+        coverage = new("coverage", this);
+        coverage.set_configuration(configuration);
+        coverage.build();
+        //i2c_agent_env.connect_subscriber(coverage);
+        
         wb_agent_env.connect_subscriber(pred);
         pred.set_scoreboard(scbd);
         i2c_agent_env.connect_subscriber(scbd);
