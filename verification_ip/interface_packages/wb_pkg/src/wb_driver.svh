@@ -8,6 +8,8 @@ class wb_driver extends ncsu_component#(.T(wb_transaction));
   wb_configuration configuration;
   wb_transaction wb_trans;
   bit [7:0] trashData;
+  bit [7:0] FSMR_data;
+  bit [7:0] FSMR_queue[$];
 
   function void set_configuration(wb_configuration cfg);
     configuration = cfg;
@@ -18,11 +20,20 @@ class wb_driver extends ncsu_component#(.T(wb_transaction));
 
     bus.master_write(trans.addr, trans.data);
 
-    if(trans.addr == 2'h2 && (trans.data != 8'bxxxx_x010 || trans.data != 8'bxxxx_x011)) begin 
+    if(trans.addr == 2'h2) begin 
       bus.wait_for_interrupt();
-      if(trans.data == 8'bxxxx_x010 || trans.data == 8'bxxxx_x011) bus.master_read(2'h1, trashData);
+      if(trans.data == 8'bxxxx_x010 || trans.data == 8'bxxxx_x011)begin 
+        bus.master_read(FSMR, FSMR_data);
+        FSMR_queue.push_back(FSMR_data);
+        bus.master_read(2'h1, trashData);
+      end
       bus.master_read(2'h2, trashData);
     end
+
+    bus.master_read(FSMR, FSMR_data);
+    FSMR_queue.push_back(FSMR_data);
+
+    
     
   endtask
 

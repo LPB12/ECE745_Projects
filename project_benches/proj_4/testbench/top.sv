@@ -176,10 +176,6 @@ initial begin: test_flow
   $display("Scoreboard and predictor instantiated, connected, and pass data as per project specification but are not fully implemented as per professor's instructions on forum");
   $finish;
 
-
-  
-  
-
 end
 
 endmodule

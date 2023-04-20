@@ -10,7 +10,7 @@ class i2cmb_predictor extends ncsu_component#(.T(wb_transaction));
   predictorState_t pred_state = WAIT;
   bit[7:0] DPR_data;
 
-   parameter CSR = 8'h00;
+  parameter CSR = 8'h00;
   parameter DPR = 8'h01;
   parameter CMDR = 8'h02;
   parameter FSMR = 8'h03;
