@@ -29,7 +29,7 @@ class i2cmb_generator extends ncsu_component #(.T(ncsu_transaction));
     bit [7:0] interleave_writes[];
 
     
-
+    i2cmb_predictor predictor;
     
 
     function new(string name = "", ncsu_component_base  parent = null); 
@@ -106,6 +106,8 @@ class i2cmb_generator extends ncsu_component #(.T(ncsu_transaction));
 
         size = wb_trans_q.size();
 
+        predictor.set_expected_reads(reads_data);
+
         fork
             for(int i = 0; i < size; i++) begin
                 wbAgent.bl_put(wb_trans_q.pop_back());
@@ -135,6 +137,8 @@ class i2cmb_generator extends ncsu_component #(.T(ncsu_transaction));
         create_trans_interleaved(interleave_writes, 8'h22);
 
         size = wb_trans_q.size();
+        
+        predictor.set_expected_reads(interleave_reads);
 
         fork
             for(int i = 0; i < size; i++) begin
@@ -149,6 +153,9 @@ class i2cmb_generator extends ncsu_component #(.T(ncsu_transaction));
 
     endtask
 
+    function void gen_set_predictor(i2cmb_predictor predictor);
+        this.predictor = predictor;
+    endfunction
     
     function void wb_set_agent(wb_agent agent);
         this.wbAgent = agent;

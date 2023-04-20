@@ -11,6 +11,16 @@ package data_pkg;
     WRITEDATA,
     READDATA
    } rcvState_t;
+
+
+   typedef enum bit [2:0]{
+    WAIT,
+    ADDR,
+    DATA
+   } predictorState_t;
+
+
+
 endpackage
 
 

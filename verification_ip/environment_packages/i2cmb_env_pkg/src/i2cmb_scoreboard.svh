@@ -15,7 +15,7 @@ class i2cmb_scoreboard extends ncsu_component#(.T(i2c_transaction));
   virtual function void nb_put(T trans);
     $display({get_full_name()," nb_put: actual transaction ",trans.convert2string()});
     if ( this.trans_in.compare(trans) ) $display({get_full_name()," i2c_transaction MATCH!"});
-    else                                $display({get_full_name()," i2c_transaction MISMATCH!: Scoreboard and predictor functionality to be added in the future projects as per professor's instructions on forum"});
+    else                                $display({get_full_name()," i2c_transaction MISMATCH!"});
   endfunction
 
 endclass

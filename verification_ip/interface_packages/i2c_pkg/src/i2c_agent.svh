@@ -28,7 +28,7 @@ class i2c_agent extends ncsu_component #(.T(i2c_transaction));
     coverage = new("coverage",this);
     coverage.set_configuration(configuration);
     coverage.build();
-      // connect_subscriber(coverage);
+    connect_subscriber(coverage);
     // end
     monitor = new("monitor",this);
     monitor.set_configuration(configuration);

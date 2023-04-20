@@ -14,6 +14,10 @@ class i2cmb_environment extends ncsu_component#(.T(wb_transaction));
         configuration = cfg;
     endfunction
 
+    function i2cmb_predictor get_predictor();
+        return pred;
+    endfunction
+
     virtual function void build();
         i2c_agent_env = new("i2c_agent",this);
         i2c_agent_env.set_configuration(configuration.i2c_config);

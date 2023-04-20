@@ -16,6 +16,7 @@ class i2cmb_test extends ncsu_component;
     gen = new("gen",this);
     gen.wb_set_agent(env.get_wb_agent());
     gen.i2c_set_agent(env.get_i2c_agent());
+    gen.gen_set_predictor(env.get_predictor());
   endfunction
 
   virtual task run();
