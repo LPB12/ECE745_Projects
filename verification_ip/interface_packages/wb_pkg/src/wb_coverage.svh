@@ -27,7 +27,6 @@ class wb_coverage extends ncsu_component#(.T(wb_transaction));
         wb_data_in = trans.data;
         //wb_set_address = trans.data;
         wb_cg.sample();
-        
     endfunction
 
 

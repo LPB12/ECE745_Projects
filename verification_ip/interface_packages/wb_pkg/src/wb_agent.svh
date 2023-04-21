@@ -54,6 +54,10 @@ class wb_agent extends ncsu_component#(.T(wb_transaction));
      fork monitor.run(); join_none
   endtask
 
+  function logic get_FSMR_data();
+    return driver.FSMR_data[7:4];
+  endfunction
+
 endclass
 
 
