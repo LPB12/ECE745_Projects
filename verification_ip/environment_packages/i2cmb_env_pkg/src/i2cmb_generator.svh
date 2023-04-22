@@ -153,6 +153,63 @@ class i2cmb_generator extends ncsu_component #(.T(ncsu_transaction));
 
     endtask
 
+    virtual task run_double_stop();
+
+        
+        i2c_transaction writeTrans;
+        wb_transaction wb_trans_start;
+        
+        $display("======================================");
+        $display("          Test Double Stops           ");
+        $display("======================================");
+
+
+        writeTrans = new("DUMMY WRITE");
+        writeTrans.op = I2C_WRITE;
+        writeTrans.addr = 8'h00;
+        writeTrans.data = dummy_data;
+
+        wb_trans_start = new("START BUS");
+        wb_trans_start.op = WRITE;
+        wb_trans_start.addr = CSR;
+        wb_trans_start.data = 8'b11xxxxxx;
+        wbAgent.bl_put(wb_trans_start);
+
+        wb_trans_start = new("SET BUS DATA");
+        wb_trans_start.op = WRITE;
+        wb_trans_start.data = 8'h05;
+        wb_trans_start.addr = DPR;
+        wbAgent.bl_put(wb_trans_start);
+
+        wb_trans_start = new("SET BUS CMDR");
+        wb_trans_start.op = WRITE;
+        wb_trans_start.data = 8'bxxxx_x110;
+        wb_trans_start.addr = CMDR;
+        wbAgent.bl_put(wb_trans_start);
+
+        size = wb_trans_q.size();
+        $display("Size: %d", size);
+
+        $display("======================================");
+        $display("          Test Double Stops Init Complete          ");
+        $display("======================================");
+
+        fork
+            for(int i = 0; i < size; i++) begin
+                $display("For: %d", i);
+                wbAgent.bl_put(wb_trans_q.pop_back());
+            end
+
+            i2cAgent.bl_put(writeTrans);
+        join_any
+
+         $display("======================================");
+        $display("         Test Double Stops Done        ");
+        $display("======================================");
+
+
+    endtask
+
     function void gen_set_predictor(i2cmb_predictor predictor);
         this.predictor = predictor;
     endfunction
@@ -164,6 +221,23 @@ class i2cmb_generator extends ncsu_component #(.T(ncsu_transaction));
     function void i2c_set_agent(i2c_agent agent);
         this.i2cAgent = agent;
     endfunction
+
+    task create_double_stop();
+        wb_transaction wb_trans;
+
+        wb_trans = new("STOP");
+        wb_trans.op = WRITE;
+        wb_trans.data = 8'bxxxxx101;
+        wb_trans.addr = CMDR;
+        wb_trans_q.push_front(wb_trans);
+
+        wb_trans = new("STOP");
+        wb_trans.op = WRITE;
+        wb_trans.data = 8'bxxxxx101;
+        wb_trans.addr = CMDR;
+        wb_trans_q.push_front(wb_trans);
+        
+    endtask
 
 
     task create_trans_writes(bit [7:0] data[], bit[7:0] i2c_addr);

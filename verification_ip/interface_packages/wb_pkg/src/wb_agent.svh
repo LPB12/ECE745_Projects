@@ -54,8 +54,15 @@ class wb_agent extends ncsu_component#(.T(wb_transaction));
      fork monitor.run(); join_none
   endtask
 
-  function logic get_FSMR_data();
-    return driver.FSMR_data[7:4];
+  function void get_FSMR_data(output bit [3:0] data []);
+    int size = driver.FSMR_queue.size();
+    bit [7:0] tempData[];
+    tempData = new[size];
+    data = new[size];
+    for(int i = 0; i < size; i++)begin
+      tempData[i] = driver.FSMR_queue.pop_front();
+    end
+    foreach(tempData[i]) data[i] = tempData[i][7:4]; 
   endfunction
 
 endclass

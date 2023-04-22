@@ -149,6 +149,16 @@ test_i2cmbFSM_starts test8;
 test_i2cmbFSM_stops test9;
 test_i2cmbFSM_writefirst test10;
 
+// make     cli GEN_TRANS_TYPE=i2cmb_test
+// make run_cli GEN_TRANS_TYPE=test_i2cmb_reg_addrs TEST_SEED=random
+// make run_cli GEN_TRANS_TYPE=test_i2cmb_reg_defaults TEST_SEED=random
+// make run_cli GEN_TRANS_TYPE=test_i2cmb_reg_faultaddrs TEST_SEED=random
+// make run_cli GEN_TRANS_TYPE=test_i2cmb_reg_transactions TEST_SEED=random
+// make run_cli GEN_TRANS_TYPE=test_i2cmb_reg_writeouts TEST_SEED=random
+// make run_cli GEN_TRANS_TYPE=test_i2cmbFSM_before TEST_SEED=random
+// make run_cli GEN_TRANS_TYPE=test_i2cmbFSM_starts TEST_SEED=random
+// make run_cli GEN_TRANS_TYPE=test_i2cmbFSM_stops TEST_SEED=random
+// make run_cli GEN_TRANS_TYPE=test_i2cmbFSM_writefirst TEST_SEED=random
 
 property i2c_arblost;
   @(posedge clk) 1'b1;
@@ -162,18 +172,84 @@ assert property(i2c_arblost) else $error("I2C Arbitration Lost");
 
 initial begin: test_flow
  
-
-  ncsu_config_db#(virtual wb_if#(WB_ADDR_WIDTH, WB_DATA_WIDTH))::set("test.env.wb_agent", wb_bus);
-  ncsu_config_db#(virtual i2c_if#(I2C_DW, I2C_AW))::set("test.env.i2c_agent", i2c_bus);
   
-  test = new("test", null);
+  string test_name;
+  $value$plusargs("GEN_TRANS_TYPE=%s", test_name);
+  #1000;
 
-  wait(rst == 1'b0);
+  case(test_name)
+    "i2cmb_test" : begin
+      ncsu_config_db#(virtual wb_if#(WB_ADDR_WIDTH, WB_DATA_WIDTH))::set("test.env.wb_agent", wb_bus);
+      ncsu_config_db#(virtual i2c_if#(I2C_DW, I2C_AW))::set("test.env.i2c_agent", i2c_bus);
+      test = new("test", null);
+      test.run();
+    end
+    "test_i2cmb_reg_addrs" : begin
+      ncsu_config_db#(virtual wb_if#(WB_ADDR_WIDTH, WB_DATA_WIDTH))::set("test2.env.wb_agent", wb_bus);
+      ncsu_config_db#(virtual i2c_if#(I2C_DW, I2C_AW))::set("test2.env.i2c_agent", i2c_bus);
+      test2 = new("test2", null);
+      // test2.run();
+    end
+    "test_i2cmb_reg_defaults" : begin
+      ncsu_config_db#(virtual wb_if#(WB_ADDR_WIDTH, WB_DATA_WIDTH))::set("test3.env.wb_agent", wb_bus);
+      ncsu_config_db#(virtual i2c_if#(I2C_DW, I2C_AW))::set("test3.env.i2c_agent", i2c_bus);
+      test3 = new("test3", null);
+      // test3.run();
+    end
+    "test_i2cmb_reg_faultaddrs" : begin
+      ncsu_config_db#(virtual wb_if#(WB_ADDR_WIDTH, WB_DATA_WIDTH))::set("test4.env.wb_agent", wb_bus);
+      ncsu_config_db#(virtual i2c_if#(I2C_DW, I2C_AW))::set("test4.env.i2c_agent", i2c_bus);
+      test4 = new("test4", null);
+      // test4.run();
+    end
+    "test_i2cmb_reg_transactions" : begin
+      ncsu_config_db#(virtual wb_if#(WB_ADDR_WIDTH, WB_DATA_WIDTH))::set("test5.env.wb_agent", wb_bus);
+      ncsu_config_db#(virtual i2c_if#(I2C_DW, I2C_AW))::set("test5.env.i2c_agent", i2c_bus);
+      test5 = new("test5", null);
+      // test5.run();
+    end
+    "test_i2cmb_reg_writeouts" : begin
+      ncsu_config_db#(virtual wb_if#(WB_ADDR_WIDTH, WB_DATA_WIDTH))::set("test6.env.wb_agent", wb_bus);
+      ncsu_config_db#(virtual i2c_if#(I2C_DW, I2C_AW))::set("test6.env.i2c_agent", i2c_bus);
+      test6 = new("test6", null);
+      // test6.run();
+    end
+    "test_i2cmbFSM_before" : begin
+      ncsu_config_db#(virtual wb_if#(WB_ADDR_WIDTH, WB_DATA_WIDTH))::set("test7.env.wb_agent", wb_bus);
+      ncsu_config_db#(virtual i2c_if#(I2C_DW, I2C_AW))::set("test7.env.i2c_agent", i2c_bus);
+      test7 = new("test7", null);
+      // test7.run();
+    end
+    "test_i2cmbFSM_starts" : begin
+      ncsu_config_db#(virtual wb_if#(WB_ADDR_WIDTH, WB_DATA_WIDTH))::set("test8.env.wb_agent", wb_bus);
+      ncsu_config_db#(virtual i2c_if#(I2C_DW, I2C_AW))::set("test8.env.i2c_agent", i2c_bus);
+      test8 = new("test8", null);
+      // test8.run();
+    end
+    "test_i2cmbFSM_stops" : begin
+      ncsu_config_db#(virtual wb_if#(WB_ADDR_WIDTH, WB_DATA_WIDTH))::set("test9.env.wb_agent", wb_bus);
+      ncsu_config_db#(virtual i2c_if#(I2C_DW, I2C_AW))::set("test9.env.i2c_agent", i2c_bus);
+      test9 = new("test9", null);
+      test9.run();
+    end
+    "test_i2cmbFSM_writefirst" : begin
+      ncsu_config_db#(virtual wb_if#(WB_ADDR_WIDTH, WB_DATA_WIDTH))::set("test10.env.wb_agent", wb_bus);
+      ncsu_config_db#(virtual i2c_if#(I2C_DW, I2C_AW))::set("test10.env.i2c_agent", i2c_bus);
+      test10 = new("test10", null);
+      // test10.run();
+    end
+    default : begin
+      ncsu_config_db#(virtual wb_if#(WB_ADDR_WIDTH, WB_DATA_WIDTH))::set("test.env.wb_agent", wb_bus);
+      ncsu_config_db#(virtual i2c_if#(I2C_DW, I2C_AW))::set("test.env.i2c_agent", i2c_bus);
+      test = new("test", null);
+      test.run();
+    end
+  endcase
 
-  test.run();
+
 
   #2000
-  $display("Scoreboard and predictor instantiated, connected, and pass data as per project specification but are not fully implemented as per professor's instructions on forum");
+  // $display("Scoreboard and predictor instantiated, connected, and pass data as per project specification but are not fully implemented as per professor's instructions on forum");
   $finish;
 
 end

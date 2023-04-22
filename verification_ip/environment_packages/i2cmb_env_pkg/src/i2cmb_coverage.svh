@@ -4,7 +4,7 @@ class i2cmb_coverage extends ncsu_component#(.T(wb_transaction));
     bit [7:0] i2cmb_bus_id;
     bit [3:0] i2cmb_state;
     wb_agent wbAgent;
-    bit [8:0] i2cmbState_temp [];
+    bit [3:0] i2cmbState_temp [];
     int size;
     covergroup i2cmbFSM_cg;
         write_data: coverpoint i2cmb_data;
@@ -26,12 +26,12 @@ class i2cmb_coverage extends ncsu_component#(.T(wb_transaction));
         //$display({get_full_name()," ",trans.convert2string()});
         //i2cmb_data = trans.data;
          
-        i2cmb_state = wbAgent.get_FSMR_data();
-        // size = i2cmbState_temp.size();
-        // for(int i=0;i<size;i++)begin
-        //     i2cmb_state = i2cmbState_temp[i];
-        //     i2cmbFSM_cg.sample();
-        // end
+        wbAgent.get_FSMR_data(i2cmbState_temp);
+        size = i2cmbState_temp.size();
+        for(int i=0;i<size;i++)begin
+            i2cmb_state = i2cmbState_temp[i];
+            i2cmbFSM_cg.sample();
+        end
         
         
         i2cmbFSM_cg.sample();

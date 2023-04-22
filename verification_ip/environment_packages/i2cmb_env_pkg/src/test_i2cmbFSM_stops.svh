@@ -20,5 +20,8 @@ class test_i2cmbFSM_stops extends ncsu_component;
     endfunction
 
     virtual task run();
+        gen.create_double_stop();
+        env.run();
+        gen.run_double_stop();
     endtask
 endclass
