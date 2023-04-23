@@ -1,7 +1,7 @@
 class wb_coverage extends ncsu_component#(.T(wb_transaction));
     wb_configuration configuration;
     bit [7:0] wb_data_in;
-    bit [6:0] wb_set_address;
+    bit [1:0] wb_set_address;
     bit wb_ops;
 
     covergroup wb_cg;
@@ -25,7 +25,7 @@ class wb_coverage extends ncsu_component#(.T(wb_transaction));
         //$display({get_full_name()," ",trans.convert2string()});
         wb_ops = trans.op;
         wb_data_in = trans.data;
-        //wb_set_address = trans.data;
+        wb_set_address = trans.addr;
         wb_cg.sample();
     endfunction
 

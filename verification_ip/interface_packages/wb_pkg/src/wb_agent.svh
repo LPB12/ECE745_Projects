@@ -8,6 +8,7 @@ class wb_agent extends ncsu_component#(.T(wb_transaction));
   virtual wb_if    bus;
 
   bit [4:0] bus_id;
+  bit [4:0] wb_addr;
 
   function new(string name = "", ncsu_component_base  parent = null); 
     super.new(name,parent);
@@ -69,6 +70,10 @@ class wb_agent extends ncsu_component#(.T(wb_transaction));
 
   function void set_bus_id(bit [4:0] id);
     bus_id = id;
+  endfunction
+
+  function void set_wb_addr(bit [4:0] addr);
+    wb_addr = addr;
   endfunction
 
 

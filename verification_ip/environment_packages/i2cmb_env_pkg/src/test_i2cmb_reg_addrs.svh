@@ -20,5 +20,7 @@ class test_i2cmb_reg_addrs extends ncsu_component;
     endfunction
 
     virtual task run();
+        env.run();
+        gen.run_reg_addrs();
     endtask
 endclass

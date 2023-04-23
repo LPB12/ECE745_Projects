@@ -376,6 +376,41 @@ class i2cmb_generator extends ncsu_component #(.T(ncsu_transaction));
         $display("======================================");
     endtask
 
+    virtual task run_reg_addrs();
+        wb_transaction wb_trans_start;
+        $display("======================================");
+        $display("       Test Wishbone Reg Addrs        ");
+        $display("======================================");
+        
+        wb_trans_start = new("CSR");
+        wb_trans_start.op = WRITE;
+        wb_trans_start.addr = CSR;
+        wb_trans_start.data = 8'b11xxxxxx;
+        wbAgent.bl_put(wb_trans_start);
+
+        wb_trans_start = new("DPR");
+        wb_trans_start.op = WRITE;
+        wb_trans_start.data = 8'h05;
+        wb_trans_start.addr = DPR;
+        wbAgent.bl_put(wb_trans_start);
+
+        wb_trans_start = new("CMDR");
+        wb_trans_start.op = WRITE;
+        wb_trans_start.data = 8'bxxxx_x110;
+        wb_trans_start.addr = CMDR;
+        wbAgent.bl_put(wb_trans_start);
+
+        wb_trans_start = new("FSMR");
+        wb_trans_start.op = READ;
+        wb_trans_start.addr = FSMR;
+        wbAgent.bl_put(wb_trans_start);
+
+        $display("======================================");
+        $display("     Test Wishbone Reg Addrs END      ");
+        $display("======================================");
+
+    endtask
+
 
     function void gen_set_predictor(i2cmb_predictor predictor);
         this.predictor = predictor;

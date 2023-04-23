@@ -190,7 +190,7 @@ initial begin: test_flow
       ncsu_config_db#(virtual wb_if#(WB_ADDR_WIDTH, WB_DATA_WIDTH))::set("test2.env.wb_agent", wb_bus);
       ncsu_config_db#(virtual i2c_if#(I2C_DW, I2C_AW))::set("test2.env.i2c_agent", i2c_bus);
       test2 = new("test2", null);
-      // test2.run();
+      test2.run();
     end
     "test_i2cmb_reg_defaults" : begin
       ncsu_config_db#(virtual wb_if#(WB_ADDR_WIDTH, WB_DATA_WIDTH))::set("test3.env.wb_agent", wb_bus);
