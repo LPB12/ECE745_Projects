@@ -25,9 +25,16 @@ class i2c_coverage extends ncsu_component#(.T(i2c_transaction));
 
     virtual function void nb_put(T trans);
         //$display({get_full_name()," ",trans.convert2string()});
+        int size = trans.data.size();
         i2c_ops = trans.op;
-        //i2c_data_in = trans.data;
+
+        for(int i = 0; i < size; i++) begin
+            i2c_data_in = trans.data[i];
+            i2c_cg.sample();
+        end
+
         i2c_cg.sample();
+        
         
     endfunction
 

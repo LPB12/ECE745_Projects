@@ -20,5 +20,8 @@ class test_i2cmbFSM_starts extends ncsu_component;
     endfunction
 
     virtual task run();
+        gen.create_double_start();
+        env.run();
+        gen.run_double_starts();
     endtask
 endclass

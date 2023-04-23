@@ -188,27 +188,194 @@ class i2cmb_generator extends ncsu_component #(.T(ncsu_transaction));
         wbAgent.bl_put(wb_trans_start);
 
         size = wb_trans_q.size();
-        $display("Size: %d", size);
+        // $display("Size: %d", size);
+
+    
+        for(int i = 0; i < size; i++) begin
+            $display("For: %d", i);
+            wbAgent.bl_put(wb_trans_q.pop_back());
+        end
+
+        
 
         $display("======================================");
-        $display("          Test Double Stops Init Complete          ");
-        $display("======================================");
-
-        fork
-            for(int i = 0; i < size; i++) begin
-                $display("For: %d", i);
-                wbAgent.bl_put(wb_trans_q.pop_back());
-            end
-
-            i2cAgent.bl_put(writeTrans);
-        join_any
-
-         $display("======================================");
         $display("         Test Double Stops Done        ");
         $display("======================================");
 
 
     endtask
+
+
+    virtual task run_double_starts();
+
+        
+        i2c_transaction writeTrans;
+        wb_transaction wb_trans_start;
+        
+        $display("======================================");
+        $display("          Test Double Start           ");
+        $display("         ERROR SHOULD BE THROWN       ");
+        $display("======================================");
+
+
+        writeTrans = new("DUMMY WRITE");
+        writeTrans.op = I2C_WRITE;
+        writeTrans.addr = 8'h00;
+        writeTrans.data = dummy_data;
+
+        wb_trans_start = new("START BUS");
+        wb_trans_start.op = WRITE;
+        wb_trans_start.addr = CSR;
+        wb_trans_start.data = 8'b11xxxxxx;
+        wbAgent.bl_put(wb_trans_start);
+
+        wb_trans_start = new("SET BUS DATA");
+        wb_trans_start.op = WRITE;
+        wb_trans_start.data = 8'h05;
+        wb_trans_start.addr = DPR;
+        wbAgent.bl_put(wb_trans_start);
+
+        wb_trans_start = new("SET BUS CMDR");
+        wb_trans_start.op = WRITE;
+        wb_trans_start.data = 8'bxxxx_x110;
+        wb_trans_start.addr = CMDR;
+        wbAgent.bl_put(wb_trans_start);
+
+        size = wb_trans_q.size();
+        // $display("Size: %d", size);
+
+    
+        for(int i = 0; i < size; i++) begin
+            $display("For: %d", i);
+            wbAgent.bl_put(wb_trans_q.pop_back());
+        end
+
+
+        $display("======================================");
+        $display("        Test Double Start Done        ");
+        $display("======================================");
+
+    endtask
+
+    virtual task run_bus_range();
+        
+
+        wb_transaction wb_trans_start;
+
+        $display("======================================");
+        $display("        Test Bus Ranges - Start       ");         
+        $display("======================================");
+
+        for(int i = 1; i < 17; i++)begin
+            wb_trans_start = new("START BUS");
+            wb_trans_start.op = WRITE;
+            wb_trans_start.addr = CSR;
+            wb_trans_start.data = 8'b11xxxxxx;
+            wbAgent.bl_put(wb_trans_start);
+
+            wb_trans_start = new("SET BUS DATA");
+            wb_trans_start.op = WRITE;
+            wb_trans_start.data = i;
+            wb_trans_start.addr = DPR;
+            // $display("Bus Set: %b", wb_trans_start.data);
+            wbAgent.set_bus_id(wb_trans_start.data);
+            wbAgent.bl_put(wb_trans_start);
+            
+
+            wb_trans_start = new("SET BUS CMDR");
+            wb_trans_start.op = WRITE;
+            wb_trans_start.data = 8'bxxxx_x110;
+            wb_trans_start.addr = CMDR;
+            wbAgent.bl_put(wb_trans_start);
+ 
+        end
+
+        $display("======================================");
+        $display("        Test Bus Ranges - End         ");
+        $display("======================================");
+    endtask
+
+    virtual task run_all_writes_reads();
+        i2c_transaction writeTrans;
+        wb_transaction wb_trans_start;
+        reads_data = new[256];
+
+        $display("======================================");
+        $display("         Test All Writes 0-255        ");
+        $display("======================================");
+        //WRITES
+        writeTrans = new("DUMMY WRITE");
+        writeTrans.op = I2C_WRITE;
+        writeTrans.addr = 8'h00;
+        writeTrans.data = dummy_data;
+
+        wb_trans_start = new("START BUS");
+        wb_trans_start.op = WRITE;
+        wb_trans_start.addr = CSR;
+        wb_trans_start.data = 8'b11xxxxxx;
+        wbAgent.bl_put(wb_trans_start);
+
+        wb_trans_start = new("SET BUS DATA");
+        wb_trans_start.op = WRITE;
+        wb_trans_start.data = 8'h05;
+        wb_trans_start.addr = DPR;
+        wbAgent.bl_put(wb_trans_start);
+
+        wb_trans_start = new("SET BUS CMDR");
+        wb_trans_start.op = WRITE;
+        wb_trans_start.data = 8'bxxxx_x110;
+        wb_trans_start.addr = CMDR;
+        wbAgent.bl_put(wb_trans_start);
+
+        size = wb_trans_q.size();
+
+        fork
+            for(int i = 0; i < size; i++) begin
+                wbAgent.bl_put(wb_trans_q.pop_back());
+            end
+
+            i2cAgent.bl_put(writeTrans);
+        join
+        $display("======================================");
+        $display("       Test All Writes 0-255 END      ");
+        $display("======================================");
+
+        $display("======================================");
+        $display("          Test All Reads 0-255        ");
+        $display("======================================");
+        //READS
+        for(int i = 0; i < 256; i++)begin
+            reads_data[i] = i;
+        end
+
+        writeTrans = new("DUMMY READ");
+        writeTrans.op = I2C_READ;
+        writeTrans.addr = 8'h00;
+        writeTrans.data = reads_data;
+
+        $display("Size of Reads: %d", reads_data.size);
+
+        create_trans_reads(reads_data, 8'h22);
+
+        size = wb_trans_q.size();
+
+        $display("Size of Queue: %d", size);
+
+        predictor.set_expected_reads(reads_data);
+
+        fork
+            for(int i = 0; i < size; i++) begin
+                wbAgent.bl_put(wb_trans_q.pop_back());
+            end
+
+            i2cAgent.bl_put(writeTrans);
+        join
+
+        $display("======================================");
+        $display("        Test All Reads 0-255 END      ");
+        $display("======================================");
+    endtask
+
 
     function void gen_set_predictor(i2cmb_predictor predictor);
         this.predictor = predictor;
@@ -227,17 +394,36 @@ class i2cmb_generator extends ncsu_component #(.T(ncsu_transaction));
 
         wb_trans = new("STOP");
         wb_trans.op = WRITE;
-        wb_trans.data = 8'bxxxxx101;
+        wb_trans.data = CMDR_STOP;
         wb_trans.addr = CMDR;
         wb_trans_q.push_front(wb_trans);
 
         wb_trans = new("STOP");
         wb_trans.op = WRITE;
-        wb_trans.data = 8'bxxxxx101;
+        wb_trans.data = CMDR_STOP;
         wb_trans.addr = CMDR;
         wb_trans_q.push_front(wb_trans);
         
     endtask
+
+
+    task create_double_start();
+        wb_transaction wb_trans;
+
+        wb_trans = new("START");
+        wb_trans.op = WRITE;
+        wb_trans.data = CMDR_START;
+        wb_trans.addr = CMDR;
+        wb_trans_q.push_front(wb_trans);
+
+        wb_trans = new("START");
+        wb_trans.op = WRITE;
+        wb_trans.data = CMDR_START;
+        wb_trans.addr = CMDR;
+        wb_trans_q.push_front(wb_trans);
+        
+    endtask
+
 
 
     task create_trans_writes(bit [7:0] data[], bit[7:0] i2c_addr);
@@ -285,6 +471,7 @@ class i2cmb_generator extends ncsu_component #(.T(ncsu_transaction));
 
     task create_trans_reads(bit [7:0] data[], bit[7:0] i2c_addr);
         wb_transaction wb_trans;
+        int data_size;
 
         wb_trans = new("START");
         wb_trans.op = WRITE;
@@ -304,7 +491,9 @@ class i2cmb_generator extends ncsu_component #(.T(ncsu_transaction));
         wb_trans.addr = CMDR;
         wb_trans_q.push_front(wb_trans);
 
-        for(int i = 0; i < 31; i++) begin
+        data_size = data.size();
+
+        for(int i = 0; i < data_size - 1; i++) begin
             wb_trans = new("CMDR READ ACK");
             wb_trans.op = WRITE;
             wb_trans.data = CMDR_READACK;

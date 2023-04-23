@@ -148,6 +148,8 @@ test_i2cmbFSM_before test7;
 test_i2cmbFSM_starts test8;
 test_i2cmbFSM_stops test9;
 test_i2cmbFSM_writefirst test10;
+test_i2cmbFSM_bus_ranges test11;
+test_i2cmb_write_read test12;
 
 // make     cli GEN_TRANS_TYPE=i2cmb_test
 // make run_cli GEN_TRANS_TYPE=test_i2cmb_reg_addrs TEST_SEED=random
@@ -167,8 +169,8 @@ endproperty
 property wb_arblost;
   @(posedge clk) 1'b1;
 endproperty
-assert property(wb_arblost) else $error("Wishbone Arbitration Lost");
-assert property(i2c_arblost) else $error("I2C Arbitration Lost");
+assert property(wb_arblost) else $error("Wishbone Arbitration Lost"); 
+assert property(i2c_arblost) else $error("I2C Arbitration Lost"); 
 
 initial begin: test_flow
  
@@ -224,7 +226,7 @@ initial begin: test_flow
       ncsu_config_db#(virtual wb_if#(WB_ADDR_WIDTH, WB_DATA_WIDTH))::set("test8.env.wb_agent", wb_bus);
       ncsu_config_db#(virtual i2c_if#(I2C_DW, I2C_AW))::set("test8.env.i2c_agent", i2c_bus);
       test8 = new("test8", null);
-      // test8.run();
+      test8.run();
     end
     "test_i2cmbFSM_stops" : begin
       ncsu_config_db#(virtual wb_if#(WB_ADDR_WIDTH, WB_DATA_WIDTH))::set("test9.env.wb_agent", wb_bus);
@@ -237,6 +239,18 @@ initial begin: test_flow
       ncsu_config_db#(virtual i2c_if#(I2C_DW, I2C_AW))::set("test10.env.i2c_agent", i2c_bus);
       test10 = new("test10", null);
       // test10.run();
+    end
+    "test_i2cmbFSM_bus_ranges" : begin
+      ncsu_config_db#(virtual wb_if#(WB_ADDR_WIDTH, WB_DATA_WIDTH))::set("test11.env.wb_agent", wb_bus);
+      ncsu_config_db#(virtual i2c_if#(I2C_DW, I2C_AW))::set("test11.env.i2c_agent", i2c_bus);
+      test11 = new("test11", null);
+      test11.run();
+    end
+    "test_i2cmb_write_read" : begin
+      ncsu_config_db#(virtual wb_if#(WB_ADDR_WIDTH, WB_DATA_WIDTH))::set("test12.env.wb_agent", wb_bus);
+      ncsu_config_db#(virtual i2c_if#(I2C_DW, I2C_AW))::set("test12.env.i2c_agent", i2c_bus);
+      test12 = new("test12", null);
+      test12.run();
     end
     default : begin
       ncsu_config_db#(virtual wb_if#(WB_ADDR_WIDTH, WB_DATA_WIDTH))::set("test.env.wb_agent", wb_bus);

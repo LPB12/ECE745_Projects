@@ -7,6 +7,8 @@ class wb_agent extends ncsu_component#(.T(wb_transaction));
   ncsu_component #(T) subscribers[$];
   virtual wb_if    bus;
 
+  bit [4:0] bus_id;
+
   function new(string name = "", ncsu_component_base  parent = null); 
     super.new(name,parent);
     if ( !(ncsu_config_db#(virtual wb_if)::get(get_full_name(), this.bus))) begin;
@@ -64,6 +66,13 @@ class wb_agent extends ncsu_component#(.T(wb_transaction));
     end
     foreach(tempData[i]) data[i] = tempData[i][7:4]; 
   endfunction
+
+  function void set_bus_id(bit [4:0] id);
+    bus_id = id;
+  endfunction
+
+
+    
 
 endclass
 

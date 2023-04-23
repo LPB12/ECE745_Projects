@@ -20,4 +20,6 @@ package i2cmb_env_pkg;
     `include "src/test_i2cmbFSM_starts.svh"
     `include "src/test_i2cmbFSM_stops.svh"
     `include "src/test_i2cmbFSM_writefirst.svh"
+    `include "src/test_i2cmbFSM_bus_ranges.svh"
+    `include "src/test_i2cmb_write_read.svh"
 endpackage

@@ -8,4 +8,6 @@ make run_cli GEN_TRANS_TYPE=test_i2cmbFSM_before TEST_SEED=random
 make run_cli GEN_TRANS_TYPE=test_i2cmbFSM_starts TEST_SEED=random
 make run_cli GEN_TRANS_TYPE=test_i2cmbFSM_stops TEST_SEED=random
 make run_cli GEN_TRANS_TYPE=test_i2cmbFSM_writefirst TEST_SEED=random
+make run_cli GEN_TRANS_TYPE=test_i2cmbFSM_bus_ranges TEST_SEED=random
+make run_cli GEN_TRANS_TYPE=test_i2cmb_write_read TEST_SEED=random
 make merge_coverage
