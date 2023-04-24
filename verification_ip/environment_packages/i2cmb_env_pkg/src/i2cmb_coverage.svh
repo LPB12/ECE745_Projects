@@ -11,7 +11,9 @@ class i2cmb_coverage extends ncsu_component#(.T(wb_transaction));
         bus_set: coverpoint i2cmb_bus_id{
             bins valid_range[16] = {[1:16]};
         }
-        check_wait: coverpoint i2cmb_state;
+        check_wait: coverpoint i2cmb_state{
+            bins valid_states[2] = {[0:1]};
+        }
     endgroup
 
     function void set_configuration(i2cmb_env_configuration cfg);

@@ -1,4 +1,4 @@
-class test_i2cmb_write_read extends ncsu_component; 
+class test_i2cmb_random extends ncsu_component; 
     i2cmb_env_configuration  cfg;
     i2cmb_environment        env;
     i2cmb_generator          gen;
@@ -20,13 +20,8 @@ class test_i2cmb_write_read extends ncsu_component;
     endfunction
 
     virtual task run();
-        test_data_writes = new[256];
-        for(int i = 0; i < 256; i++)begin
-            test_data_writes[i] = i;
-        end
-        gen.create_trans_writes(test_data_writes, 8'h22);
         env.run();
-        gen.run_all_writes_reads();
-        
+        gen.create_rand_trans(1000);
+        //gen.run_random_test();
     endtask
 endclass

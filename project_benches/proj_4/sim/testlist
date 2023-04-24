@@ -1,0 +1,35 @@
+1. i2cmb_test  
+    TEST_SEED= NOT APPLICABLE
+
+2. test_i2cmb_reg_addrs 
+    TEST_SEED= NOT APPLICABLE
+
+3. test_i2cmb_reg_defaults 
+    TEST_SEED= NOT APPLICABLE
+
+4. test_i2cmb_reg_faultaddrs 
+    TEST_SEED= NOT APPLICABLE
+
+5. test_i2cmb_reg_transactions 
+    TEST_SEED= NOT APPLICABLE
+
+6. test_i2cmb_reg_writeouts 
+    TEST_SEED= NOT APPLICABLE
+
+7. test_i2cmbFSM_before 
+    TEST_SEED= NOT APPLICABLE
+
+8. test_i2cmbFSM_starts 
+    TEST_SEED= NOT APPLICABLE
+
+9. test_i2cmbFSM_stops 
+    TEST_SEED= NOT APPLICABLE
+
+10. test_i2cmbFSM_writefirst 
+    TEST_SEED= NOT APPLICABLE
+
+11. test_i2cmbFSM_bus_ranges 
+    TEST_SEED= NOT APPLICABLE
+
+12. test_i2cmb_random 
+    TEST_SEED=47609

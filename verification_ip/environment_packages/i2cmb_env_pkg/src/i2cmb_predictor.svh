@@ -95,24 +95,29 @@ class i2cmb_predictor extends ncsu_component#(.T(wb_transaction));
 
     //$display({get_full_name()," ",trans.convert2string()});
     if(transfer_complete == 1'b1) begin
-      $display("Transfer Complete");
+      // $display("Transfer Complete");
       q_size = i2c_data.size();
       i2c_predicted_trans.data = new[q_size];
       for(int i = 0; i < q_size; i++) begin
         //$display("i2c_data: %b", i2c_data.pop_front());
         i2c_predicted_trans.data[i] = i2c_data.pop_front();
+        // $display("i2c_predicted_trans.data[i]: %b", i2c_predicted_trans.data[i]);
       end
-      $display({get_full_name()," ",i2c_predicted_trans.convert2string()});
+      // $display({get_full_name()," ",i2c_predicted_trans.convert2string()});
       scoreboard.nb_transport(i2c_predicted_trans, i2c_output_trans);
       transfer_complete = 1'b0;
-      $display("Transfer Complete Finished");
+      // $display("Transfer Complete Finished");
     end
   endfunction
 
 
   function void set_expected_reads(bit[7:0] read_data []);
-    for(int i = 0; i < read_data.size(); i++) begin
+    int size = read_data.size();
+    
+    read_vals.delete();
+    for(int i = 0; i < size; i++) begin
       read_vals.push_back(read_data[i]);
+      // $display("set_expected_reads: %b", read_data[i]);
     end
   endfunction
 

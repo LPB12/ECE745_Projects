@@ -28,12 +28,12 @@ class i2c_monitor extends ncsu_component#(.T(i2c_transaction));
                     monitored_trans.op,
                     monitored_trans.data
                     );
-        $display("%s i2c_monitor::run() data:0x%x address:0x%x op:%s ", 
-                  get_full_name(),
-                  monitored_trans.data,
-                  monitored_trans.addr,
-                  monitored_trans.op ? "READ" : "WRITE"
-                );
+        // $display("%s i2c_monitor::run() data:0x%x address:0x%x op:%s ", 
+        //           get_full_name(),
+        //           monitored_trans.data,
+        //           monitored_trans.addr,
+        //           monitored_trans.op ? "READ" : "WRITE"
+        //         );
         agent.nb_put(monitored_trans);
         if ( enable_transaction_viewing) begin
            monitored_trans.end_time = $time;

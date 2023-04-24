@@ -8,7 +8,6 @@ class wb_coverage extends ncsu_component#(.T(wb_transaction));
         data: coverpoint wb_data_in;
         ops: coverpoint wb_ops;
         addr: coverpoint wb_set_address; 
-        data_x_op: cross wb_data_in, wb_ops;
     endgroup
 
     function void set_configuration(wb_configuration cfg);

@@ -5,3 +5,5 @@ project_benches/*/sim/transcript
 project_benches/*/sim/vsim.wlf
 
 project_benches/*/sim/*.ucdb
+
+project_benches/*/sim/.nfs*

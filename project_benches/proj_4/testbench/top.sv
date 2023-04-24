@@ -149,7 +149,7 @@ test_i2cmbFSM_starts test8;
 test_i2cmbFSM_stops test9;
 test_i2cmbFSM_writefirst test10;
 test_i2cmbFSM_bus_ranges test11;
-test_i2cmb_write_read test12;
+test_i2cmb_random test12;
 
 // make     cli GEN_TRANS_TYPE=i2cmb_test
 // make run_cli GEN_TRANS_TYPE=test_i2cmb_reg_addrs TEST_SEED=random
@@ -196,25 +196,25 @@ initial begin: test_flow
       ncsu_config_db#(virtual wb_if#(WB_ADDR_WIDTH, WB_DATA_WIDTH))::set("test3.env.wb_agent", wb_bus);
       ncsu_config_db#(virtual i2c_if#(I2C_DW, I2C_AW))::set("test3.env.i2c_agent", i2c_bus);
       test3 = new("test3", null);
-      // test3.run();
+      test3.run();
     end
     "test_i2cmb_reg_faultaddrs" : begin
       ncsu_config_db#(virtual wb_if#(WB_ADDR_WIDTH, WB_DATA_WIDTH))::set("test4.env.wb_agent", wb_bus);
       ncsu_config_db#(virtual i2c_if#(I2C_DW, I2C_AW))::set("test4.env.i2c_agent", i2c_bus);
       test4 = new("test4", null);
-      // test4.run();
+      test4.run();
     end
     "test_i2cmb_reg_transactions" : begin
       ncsu_config_db#(virtual wb_if#(WB_ADDR_WIDTH, WB_DATA_WIDTH))::set("test5.env.wb_agent", wb_bus);
       ncsu_config_db#(virtual i2c_if#(I2C_DW, I2C_AW))::set("test5.env.i2c_agent", i2c_bus);
       test5 = new("test5", null);
-      // test5.run();
+      test5.run();
     end
     "test_i2cmb_reg_writeouts" : begin
       ncsu_config_db#(virtual wb_if#(WB_ADDR_WIDTH, WB_DATA_WIDTH))::set("test6.env.wb_agent", wb_bus);
       ncsu_config_db#(virtual i2c_if#(I2C_DW, I2C_AW))::set("test6.env.i2c_agent", i2c_bus);
       test6 = new("test6", null);
-      // test6.run();
+      test6.run();
     end
     "test_i2cmbFSM_before" : begin
       ncsu_config_db#(virtual wb_if#(WB_ADDR_WIDTH, WB_DATA_WIDTH))::set("test7.env.wb_agent", wb_bus);
@@ -246,7 +246,7 @@ initial begin: test_flow
       test11 = new("test11", null);
       test11.run();
     end
-    "test_i2cmb_write_read" : begin
+    "test_i2cmb_random" : begin
       ncsu_config_db#(virtual wb_if#(WB_ADDR_WIDTH, WB_DATA_WIDTH))::set("test12.env.wb_agent", wb_bus);
       ncsu_config_db#(virtual i2c_if#(I2C_DW, I2C_AW))::set("test12.env.i2c_agent", i2c_bus);
       test12 = new("test12", null);
