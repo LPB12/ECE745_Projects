@@ -286,7 +286,7 @@
   </Style>
  </Styles>
  <Worksheet ss:Name="AHB to WB Bridge Test Plan">
-  <Table ss:ExpandedColumnCount="10" ss:ExpandedRowCount="44" x:FullColumns="1"
+  <Table ss:ExpandedColumnCount="10" ss:ExpandedRowCount="43" x:FullColumns="1"
    x:FullRows="1" ss:DefaultColumnWidth="53.25">
    <Column ss:StyleID="s62" ss:AutoFitWidth="0" ss:Width="33"/>
    <Column ss:Width="131.25"/>
@@ -389,7 +389,7 @@
    <Row ss:AutoFitHeight="0" ss:Height="39">
     <Cell ss:StyleID="s73"><Data ss:Type="Number">1.5</Data></Cell>
     <Cell ss:StyleID="s74"><Data ss:Type="String">Test Writes and Reads</Data></Cell>
-    <Cell ss:StyleID="s74"><Data ss:Type="String">Write and Read values from all registers to test accuracy. FSMR can only be read so only assuring reads for it</Data></Cell>
+    <Cell ss:StyleID="s74"><Data ss:Type="String">Test all datapoints 0-255 with writes and reads so 512 transactions total</Data></Cell>
     <Cell ss:StyleID="s74"><Data ss:Type="String">test_i2cmb_reg_transactions</Data></Cell>
     <Cell ss:StyleID="s74"><Data ss:Type="String">test</Data></Cell>
     <Cell ss:StyleID="s75"><Data ss:Type="Number">1</Data></Cell>
@@ -410,7 +410,7 @@
     <Cell ss:StyleID="s77"/>
     <Cell ss:StyleID="s77"/>
    </Row>
-   <Row ss:AutoFitHeight="0" ss:Height="13.5">
+   <Row ss:AutoFitHeight="0" ss:Height="22.5">
     <Cell ss:StyleID="s78"><Data ss:Type="Number">2.1</Data></Cell>
     <Cell ss:StyleID="s74"><Data ss:Type="String">Two Stops</Data></Cell>
     <Cell ss:StyleID="s74"><Data ss:Type="String">Transmit two stops using the CMDR</Data></Cell>
@@ -422,13 +422,13 @@
     <Cell ss:StyleID="s76"><Data ss:Type="String">rdoden</Data></Cell>
     <Cell ss:StyleID="s76"><Data ss:Type="Number">3</Data></Cell>
    </Row>
-   <Row ss:AutoFitHeight="0" ss:Height="13.5">
+   <Row ss:AutoFitHeight="0" ss:Height="54">
     <Cell ss:StyleID="s78"><Data ss:Type="Number">2.2000000000000002</Data></Cell>
     <Cell ss:StyleID="s74"><Data ss:Type="String">Two Starts</Data></Cell>
-    <Cell ss:StyleID="s74"><Data ss:Type="String">Transmit two starts using the CMDR</Data></Cell>
+    <Cell ss:StyleID="s74"><Data ss:Type="String">Transmit two starts using the CMDR / Weight is 0 because that is the only way I know to have a negative test. This test should fail and does because of a DUT assert</Data></Cell>
     <Cell ss:StyleID="s74"><Data ss:Type="String">test_i2cmbFSM_starts</Data></Cell>
     <Cell ss:StyleID="s74"><Data ss:Type="String">test</Data></Cell>
-    <Cell ss:StyleID="s74"><Data ss:Type="Number">1</Data></Cell>
+    <Cell ss:StyleID="s74"><Data ss:Type="Number">0</Data></Cell>
     <Cell ss:StyleID="s74"><Data ss:Type="Number">0</Data></Cell>
     <Cell ss:StyleID="s76"><Data ss:Type="String">lpbrown2</Data></Cell>
     <Cell ss:StyleID="s76"><Data ss:Type="String">rdoden</Data></Cell>
@@ -568,18 +568,6 @@
    </Row>
    <Row ss:AutoFitHeight="0" ss:Height="26.25">
     <Cell ss:StyleID="s78"><Data ss:Type="Number">3.5</Data></Cell>
-    <Cell ss:StyleID="s74"><Data ss:Type="String">Wishbone opcode and Data</Data></Cell>
-    <Cell ss:StyleID="s74"><Data ss:Type="String">Cross to check that all permutations of data and opcodes(reads and writes) have happened</Data></Cell>
-    <Cell ss:StyleID="s74"><Data ss:Type="String">wb_cg::data_x_op</Data></Cell>
-    <Cell ss:StyleID="s74"><Data ss:Type="String">Cross</Data></Cell>
-    <Cell ss:StyleID="s74"><Data ss:Type="Number">1</Data></Cell>
-    <Cell ss:StyleID="s74"><Data ss:Type="Number">100</Data></Cell>
-    <Cell ss:StyleID="s76"><Data ss:Type="String">lpbrown2</Data></Cell>
-    <Cell ss:StyleID="s76"><Data ss:Type="String">rdoden</Data></Cell>
-    <Cell ss:StyleID="s76"><Data ss:Type="Number">2</Data></Cell>
-   </Row>
-   <Row ss:AutoFitHeight="0" ss:Height="13.5">
-    <Cell ss:StyleID="s78"><Data ss:Type="Number">3.6</Data></Cell>
     <Cell ss:StyleID="s74"><Data ss:Type="String">Wishbone Arbitration </Data></Cell>
     <Cell ss:StyleID="s74"><Data ss:Type="String">An assertion to track if an arbitration loss occurs</Data></Cell>
     <Cell ss:StyleID="s74"><Data ss:Type="String">assert__wb_arblost</Data></Cell>
@@ -614,7 +602,7 @@
     <Cell ss:StyleID="s76"><Data ss:Type="String">rdoden</Data></Cell>
     <Cell ss:StyleID="s76"><Data ss:Type="Number">1</Data></Cell>
    </Row>
-   <Row ss:AutoFitHeight="0" ss:Height="26.25">
+   <Row ss:AutoFitHeight="0" ss:Height="13.5">
     <Cell ss:StyleID="s78"><Data ss:Type="Number">4.2</Data></Cell>
     <Cell ss:StyleID="s74"><Data ss:Type="String">I2C data</Data></Cell>
     <Cell ss:StyleID="s74"><Data ss:Type="String">A coverpoint to keep track of data occuring. Want to see all possible data points from 0x00 to 0xFF</Data></Cell>
@@ -650,7 +638,7 @@
     <Cell ss:StyleID="s76"><Data ss:Type="String">rdoden</Data></Cell>
     <Cell ss:StyleID="s76"><Data ss:Type="Number">2</Data></Cell>
    </Row>
-   <Row ss:AutoFitHeight="0" ss:Height="13.5">
+   <Row ss:AutoFitHeight="0" ss:Height="26.25">
     <Cell ss:StyleID="s78"><Data ss:Type="Number">4.5</Data></Cell>
     <Cell ss:StyleID="s74"><Data ss:Type="String">I2C Arbitration </Data></Cell>
     <Cell ss:StyleID="s74"><Data ss:Type="String">An assertion to track if an arbitration loss occurs</Data></Cell>
@@ -674,7 +662,7 @@
     <Cell ss:StyleID="s72"/>
     <Cell ss:StyleID="s72"/>
    </Row>
-   <Row ss:AutoFitHeight="0" ss:Height="26.25">
+   <Row ss:AutoFitHeight="0" ss:Height="13.5">
     <Cell ss:StyleID="s83"><Data ss:Type="String">5.1</Data></Cell>
     <Cell ss:StyleID="s75"><Data ss:Type="String">Check total code coverage of i2cmb</Data></Cell>
     <Cell ss:StyleID="s75"><Data ss:Type="String">Record and check that all things in layered testbench are checked and correct</Data></Cell>
@@ -686,7 +674,7 @@
     <Cell ss:StyleID="s76"><Data ss:Type="String">rdoden</Data></Cell>
     <Cell ss:StyleID="s84"><Data ss:Type="Number">3</Data></Cell>
    </Row>
-   <Row>
+   <Row ss:AutoFitHeight="0" ss:Height="26.25">
     <Cell ss:StyleID="Default"/>
    </Row>
    <Row>
@@ -730,11 +718,12 @@
     <VerticalResolution>600</VerticalResolution>
    </Print>
    <Selected/>
+   <TopRowVisible>4</TopRowVisible>
    <Panes>
     <Pane>
      <Number>3</Number>
-     <ActiveRow>37</ActiveRow>
-     <ActiveCol>9</ActiveCol>
+     <ActiveRow>12</ActiveRow>
+     <ActiveCol>11</ActiveCol>
     </Pane>
    </Panes>
    <ProtectObjects>False</ProtectObjects>
